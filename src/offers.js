@@ -90,7 +90,7 @@ const CreditCardSearch = () => {
 
   return (
     <div className="container">
-      <h1>Credit Card Category Finder</h1>
+      <h1>Credit Card Offers</h1>
       <input
         type="text"
         value={searchValue}
