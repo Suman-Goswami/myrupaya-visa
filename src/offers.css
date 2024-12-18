@@ -64,7 +64,7 @@ body {
     flex-direction: column; /* Stack content vertically on small screens */
     align-items: center; /* Align items to the center for better mobile experience */
     gap: 15px;
-    background-color: #d2e4c7;
+    background-color: #39641D;
     border: 1px solid #ddd;
     border-radius: 8px;
     padding: 15px;
