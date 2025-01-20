@@ -1,16 +1,27 @@
 body {
     background-color:  #F6F4E9;
   }
+  h1{
+    text-align: center;
+  }
   
   .container {
-    width: 90%;
     margin: 0 auto;
     padding: 20px;
   }
+
+  .no-results-message {
+    color: red;
+    text-align: center;
+    font-size: 18px;
+    font-weight: bold;
+    margin-top: 20px;
+  }
+  
   
   /* Search input styling */
   .search-input {
-    width: 100%;
+    width: 80%;
     padding: 10px;
     margin-bottom: 20px;
     font-size: 16px;
@@ -27,6 +38,7 @@ body {
     border-radius: 5px;
     max-height: 200px;
     overflow-y: auto;
+    width: 80%;
   }
   
   .dropdown-item {
@@ -44,8 +56,9 @@ body {
   .card-details {
     margin-top: 20px;
     background-color: #d2e4c7;
-    padding: 20px;
     border-radius: 8px;
+    width: 100%;
+    padding: 30px;
   }
   
   .offers-section {
