@@ -3,14 +3,23 @@ import Papa from "papaparse";
 import "./offers.css";
 
 const CreditCardSearch = () => {
-  const [cardData, setCardData] = useState([]); // Stores all the card data from the main CSV
-  const [searchValue, setSearchValue] = useState(""); // Stores the search input value
-  const [filteredCards, setFilteredCards] = useState([]); // Stores the filtered card names
-  const [selectedCard, setSelectedCard] = useState(null); // Stores the selected card and its category
-  const [offers, setOffers] = useState([]); // Stores the offers for the selected Visa type
-  const [noResultsMessage, setNoResultsMessage] = useState(""); // Stores the message for invalid or incomplete card names
+  const [cardData, setCardData] = useState([]);
+  const [searchValue, setSearchValue] = useState("");
+  const [debouncedSearchValue, setDebouncedSearchValue] = useState("");
+  const [filteredCards, setFilteredCards] = useState([]);
+  const [selectedCard, setSelectedCard] = useState(null);
+  const [offers, setOffers] = useState([]);
+  const [noResultsMessage, setNoResultsMessage] = useState("");
 
-  // Fetch and parse the main CSV file containing card information
+  // Debounce search input (300ms delay)
+  useEffect(() => {
+    const timerId = setTimeout(() => {
+      setDebouncedSearchValue(searchValue);
+    }, 300);
+    return () => clearTimeout(timerId);
+  }, [searchValue]);
+
+  // Fetch and parse the main CSV file
   useEffect(() => {
     Papa.parse("/Credit-Card-Products.csv", {
       download: true,
@@ -24,36 +33,35 @@ const CreditCardSearch = () => {
     });
   }, []);
 
-  // Handle search input and filter the card names
-  const handleSearchInput = (event) => {
-    const value = event.target.value.toLowerCase();
-    setSearchValue(value);
-    setNoResultsMessage(""); // Clear previous results message
+  // Filter cards based on search terms
+  useEffect(() => {
+    if (debouncedSearchValue.length > 0) {
+      const searchTerms = debouncedSearchValue.toLowerCase().split(' ');
+      
+      const filtered = cardData.filter((card) => {
+        if (!card["Credit Card Name"]) return false;
+        const cardNameLower = card["Credit Card Name"].toLowerCase();
+        return searchTerms.every(term => cardNameLower.includes(term));
+      });
 
-    if (value.length > 0) {
-      const filtered = cardData.filter(
-        (card) =>
-          card["Credit Card Name"] && 
-          card["Credit Card Name"].toLowerCase().includes(value)
-      );
       setFilteredCards(filtered);
-
-      if (filtered.length === 0) {
-        setNoResultsMessage("No Offers Available on this credit card.");
-      }
+      setNoResultsMessage(filtered.length === 0 ? "No Offers Available on this credit card." : "");
     } else {
       setFilteredCards([]);
-      setOffers([]);
-      setSelectedCard(null); // Clear card details
-      setNoResultsMessage(""); // Clear message when input is cleared
+      setNoResultsMessage("");
     }
+  }, [debouncedSearchValue, cardData]);
+
+  const handleSearchInput = (event) => {
+    const value = event.target.value;
+    setSearchValue(value);
+    setSelectedCard(null);
+    setOffers([]);
   };
 
-  // Fetch and display offers for the selected Visa type
   const fetchVisaTypeOffers = (visaType) => {
     let fileName = "";
     
-    // Map Visa type to corresponding CSV file
     switch (visaType) {
       case "Visa Gold":
         fileName = "/Visa Gold.csv";
@@ -71,7 +79,6 @@ const CreditCardSearch = () => {
         fileName = "/Visa Standard.csv";
     }
 
-    // Fetch the CSV file containing offers for the selected Visa type
     Papa.parse(fileName, {
       download: true,
       header: true,
@@ -84,24 +91,20 @@ const CreditCardSearch = () => {
     });
   };
 
-  // Handle card selection and find its category
   const displayCardCategory = (creditCardName) => {
     const selected = cardData.find((card) => card["Credit Card Name"] === creditCardName);
     setSelectedCard(selected);
-    setFilteredCards([]);
     setSearchValue(creditCardName);
 
-    // Fetch offers based on the selected Visa type
     if (selected && selected["Visa type"]) {
       fetchVisaTypeOffers(selected["Visa type"]);
     } else {
-      setOffers([]); // Clear offers if no valid Visa type found
+      setOffers([]);
     }
   };
 
   return (
     <div className="container" style={styles.container}>
-      {/* Navbar Component */}
       <nav style={styles.navbar}>
         <div style={styles.logoContainer}>
           <a href="https://www.myrupaya.in/">
@@ -111,7 +114,6 @@ const CreditCardSearch = () => {
               style={styles.logo}
             />
           </a>
-          {/* Move the links here */}
           <div style={styles.linksContainer}>
             <a href="https://www.myrupaya.in/" style={styles.link}>
               Home
@@ -122,7 +124,6 @@ const CreditCardSearch = () => {
 
       <h1>Card Offers</h1>
 
-      {/* Centered Search Box and Dropdown */}
       <div style={styles.searchContainer}>
         <input
           type="text"
@@ -134,7 +135,6 @@ const CreditCardSearch = () => {
           style={styles.searchInput}
         />
 
-        {/* Dropdown to display matching cards */}
         {filteredCards.length > 0 && (
           <ul className="dropdown" style={styles.dropdown}>
             {filteredCards.map((card, index) => (
@@ -151,12 +151,10 @@ const CreditCardSearch = () => {
         )}
       </div>
 
-      {/* No offers message if no valid card is selected */}
       {noResultsMessage && !selectedCard && (
         <p className="no-results-message">{noResultsMessage}</p>
       )}
 
-      {/* Display card category if a card is selected */}
       {selectedCard && (
         <div className="card-details">
           <h2>Card Details</h2>
@@ -172,7 +170,6 @@ const CreditCardSearch = () => {
         </div>
       )}
 
-      {/* Display offers if any Visa type is selected */}
       {offers.length > 0 && selectedCard && (
         <div className="offers-section">
           <h2>{selectedCard["Visa type"]} Offers</h2>
@@ -209,7 +206,7 @@ const styles = {
     alignItems: "center",
     backgroundColor: "#CDD1C1",
     width: "100%",
-    padding : "10px"
+    padding: "10px"
   },
   logoContainer: {
     display: "flex",
@@ -224,14 +221,14 @@ const styles = {
     display: "flex",
     gap: "35px",
     flexWrap: "wrap",
-    marginLeft: "40px", // Adjust spacing from the logo
+    marginLeft: "40px",
   },
   link: {
     textDecoration: "none",
     color: "black",
-    fontSize: "18px", // Increased font size
+    fontSize: "18px",
     fontFamily: "Arial, sans-serif",
-    transition: "color 0.3s ease", // Smooth transition effect
+    transition: "color 0.3s ease",
   },
   searchContainer: {
     display: "flex",
@@ -260,6 +257,9 @@ const styles = {
     padding: "10px",
     cursor: "pointer",
     transition: "background-color 0.3s",
+    "&:hover": {
+      backgroundColor: "#ddd",
+    }
   },
 };
 
