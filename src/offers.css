@@ -1,5 +1,5 @@
 body {
-    background-color:  #F6F4E9;
+    background: linear-gradient(to bottom, #999792, #cecdc9);
   }
   h1{
     text-align: center;
@@ -106,13 +106,18 @@ body {
     margin-bottom: 5px;
     color: #333;
   }
+  button{
+      background-color: #1e7145;
+      color: white;
+  }
   
   .offer-link {
     margin-top: 5px;
     display: inline-block;
     text-decoration: none;
-    color: #007bff;
     font-weight: bold;
+    background-color: #1e7145;
+      color: white;
   }
   
   .offer-link:hover {

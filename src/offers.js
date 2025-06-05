@@ -179,9 +179,9 @@ const CreditCardSearch = () => {
                 <img src={offer["Image"]} alt={offer["Title"]} className="offer-image" />
                 <div className="offer-details">
                   <h3>{offer["Title"]}</h3>
-                  <a href={offer["Link"]} target="_blank" rel="noopener noreferrer" className="offer-link">
+               <button>   <a href={offer["Link"]} target="_blank" rel="noopener noreferrer" className="offer-link">
                     View Offer
-                  </a>
+                  </a> </button> 
                 </div>
               </div>
             ))}
